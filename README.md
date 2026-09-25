@@ -1,6 +1,6 @@
 # Foreign Policy Alignment in Asymmetric Alliances: Interactive Data Explorer
 
-An interactive tool for exploring the data from "Foreign Policy Alignment in Asymmetric Alliances" by Jesse C. Johnson, Yasuki Kudo, and Andrew G. Long, published in *International Interactions*.
+An interactive tool for exploring the data from "Foreign Policy Alignment in Asymmetric Alliances" by Jesse C. Johnson, Yasuki Kudo, and Andrew G. Long, published in *International Interactions*, 52(4), 599–629.
 
 The page lets readers explore how closely U.S. allies and non-allies have aligned their foreign policies with the United States over time, by country, year, and alliance type.
 
