@@ -79,16 +79,36 @@
     font-size: 12.5px; letter-spacing: .09em; text-transform: uppercase;
     color: var(--text-muted); font-weight: 600; margin-bottom: 14px;
   }
-  .toc{
-    display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 4px 28px; margin: 0 0 44px; padding-bottom: 22px;
-    border-bottom: 1px solid var(--border); font-size: 13px;
+  .section-tabs{
+    position: sticky; top: 0; z-index: 20;
+    display: flex; gap: 2px; overflow-x: auto; overscroll-behavior-x: contain;
+    background: var(--page-plane); border-bottom: 1px solid var(--border);
+    margin: 0 0 40px; padding: 0; scrollbar-width: thin;
   }
-  .toc a{
-    color: var(--text-secondary); text-decoration:none; display:block;
-    padding: 3px 0; border-bottom:1px solid transparent;
+  .section-tabs::-webkit-scrollbar{ height: 4px; }
+  .section-tabs::-webkit-scrollbar-thumb{ background: var(--baseline); border-radius: 2px; }
+  .section-tab{
+    flex: none; appearance: none; font: inherit; font-size: 13.5px; font-weight: 600;
+    color: var(--text-muted); background: transparent; border: none; white-space: nowrap;
+    padding: 15px 16px 13px; margin-bottom: -1px; cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color .15s ease, border-color .15s ease;
   }
-  .toc a:hover{ color: var(--series-nato); }
+  .section-tab:hover{ color: var(--text-primary); }
+  .section-tab:focus-visible{
+    outline: 2px solid var(--series-nato); outline-offset: -2px; border-radius: 3px;
+  }
+  .section-tab.active{ color: var(--text-primary); border-bottom-color: var(--series-nato); }
+
+  .tab-panel{ display: none; }
+  .tab-panel.active{ display: block; animation: tab-fade-in .18s ease; }
+  @keyframes tab-fade-in{
+    from{ opacity: 0; transform: translateY(3px); }
+    to{ opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .tab-panel.active{ animation: none; }
+  }
   h1.title{
     font-family: Georgia, "Times New Roman", serif;
     font-size: clamp(28px, 4.4vw, 42px);
@@ -309,6 +329,13 @@
   .references ol{ list-style: none; margin: 0; padding: 0; font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
   .references li{ margin-bottom: 10px; padding-left: 1.5em; text-indent: -1.5em; }
   .ai-disclosure{ padding-top: 16px; border-top: 1px solid var(--border); }
+
+  /* consistent, deliberate focus rings for keyboard users across the page's custom controls */
+  .link-pill:focus-visible, .step-btn:focus-visible, .tab-btn:focus-visible,
+  .bump-chip-label:focus-visible, .bump-chip-x:focus-visible, select:focus-visible,
+  summary:focus-visible{
+    outline: 2px solid var(--series-nato); outline-offset: 2px;
+  }
 </style>
 </head>
 <body>
@@ -342,17 +369,16 @@
 
 <div class="wrap">
 
-  <nav class="toc" aria-label="Table of contents">
-    <div class="kicker" style="grid-column:1/-1; margin-bottom:2px;">Contents</div>
-    <a href="#fig3">Alignment scores over time, by alliance type</a>
-    <a href="#table1">Who aligned most closely with the U.S., year by year?</a>
-    <a href="#trajectories">Alignment trajectories: rank and score over time</a>
-    <a href="#drivers">What drives a country's alignment score?</a>
-    <a href="#fig5">Alignment scores before and after NATO accession</a>
-    <a href="#signals">Major-power support signals alongside U.S. alignment scores</a>
+  <nav class="section-tabs" id="section-tabs" role="tablist" aria-label="Report sections">
+    <button class="section-tab" role="tab" id="tab-btn-fig3" aria-controls="fig3" aria-selected="false" data-tab="fig3">By alliance type</button>
+    <button class="section-tab" role="tab" id="tab-btn-table1" aria-controls="table1" aria-selected="false" data-tab="table1">Yearly ranking</button>
+    <button class="section-tab" role="tab" id="tab-btn-trajectories" aria-controls="trajectories" aria-selected="false" data-tab="trajectories">Trajectories</button>
+    <button class="section-tab" role="tab" id="tab-btn-drivers" aria-controls="drivers" aria-selected="false" data-tab="drivers">Input variables</button>
+    <button class="section-tab" role="tab" id="tab-btn-fig5" aria-controls="fig5" aria-selected="false" data-tab="fig5">NATO accession</button>
+    <button class="section-tab" role="tab" id="tab-btn-signals" aria-controls="signals" aria-selected="false" data-tab="signals">Great-power signals</button>
   </nav>
 
-  <section id="fig3">
+  <section id="fig3" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-fig3" tabindex="0">
     <h2 class="section-title">Alignment scores over time, by alliance type</h2>
     <p class="section-dek">
       Average alignment score by year, grouped by each country's alliance relationship with the United
@@ -376,7 +402,7 @@
     </div>
   </section>
 
-  <section id="table1">
+  <section id="table1" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-table1" tabindex="0">
     <h2 class="section-title">Who aligned most closely with the U.S., year by year?</h2>
     <p class="section-dek">
       Countries ranked by posterior alignment score in a single year. Step through 1950&ndash;2010 to see
@@ -401,7 +427,7 @@
     </div>
   </section>
 
-  <section id="trajectories">
+  <section id="trajectories" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-trajectories" tabindex="0">
     <h2 class="section-title">Alignment trajectories: rank and score over time</h2>
     <p class="section-dek">
       Pick countries from the dropdown below to compare two views of the same trajectories,
@@ -467,8 +493,8 @@
     </div>
   </section>
 
-  <section id="drivers">
-    <h2 class="section-title">What drives a country's alignment score?</h2>
+  <section id="drivers" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-drivers" tabindex="0">
+    <h2 class="section-title">How input variables contribute to a country's alignment score</h2>
     <p class="section-dek">
       Ten input variables underlying the alignment score, grouped into economic, military presence,
       non-proliferation, and coalition/diplomatic categories. Pick a country and a year to see each
@@ -499,7 +525,7 @@
     </div>
   </section>
 
-  <section id="fig5">
+  <section id="fig5" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-fig5" tabindex="0">
     <h2 class="section-title">Alignment scores before and after NATO accession</h2>
     <p class="section-dek">
       Pooled alignment scores in the years around NATO accession, for every country that joined after 1949
@@ -526,7 +552,7 @@
     </div>
   </section>
 
-  <section id="signals">
+  <section id="signals" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-signals" tabindex="0">
     <h2 class="section-title">Major-power support signals alongside U.S. alignment scores</h2>
     <p class="section-dek">
       McManus &amp; Nieman (2019) estimate how strongly a major power (the U.S., Russia, or China) signals
@@ -591,6 +617,11 @@
     <p class="ai-disclosure">
       This interactive summary was built with AI assistance using Claude Code (Anthropic), powered by
       Claude Sonnet 5 (model ID: <code>claude-sonnet-5</code>).
+    </p>
+
+    <p class="page-copyright">
+      &copy; 2026 Yasuki Kudo. Code, design, and visualizations for this interactive page; the underlying
+      research is &copy; 2026 Taylor &amp; Francis Group, LLC (see citation above).
     </p>
   </footer>
 
@@ -1703,6 +1734,59 @@ const CountrySelection = (function(){
   nextBtn.addEventListener('click', ()=> render(currentPower, Math.min(SIG.year_max, +slider.value + 1)));
 
   render(POWERS[0], 1980);
+})();
+
+/* ---------------- Section tabs: single-page tab bar over the six report sections ---------------- */
+(function(){
+  const tabBar = document.getElementById('section-tabs');
+  const buttons = Array.from(tabBar.querySelectorAll('.section-tab'));
+  const panels = Array.from(document.querySelectorAll('.tab-panel'));
+  const ids = buttons.map(b => b.dataset.tab);
+  const DEFAULT_ID = ids[0];
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // charts on a hidden tab are created (by the IIFEs above) while their canvas has zero
+  // size; Chart.js only recomputes real dimensions once resize() is called against a
+  // visible container, so every activation — including the first — resizes whatever
+  // chart instances live inside that panel. Existing chart instances are reused as-is;
+  // nothing is destroyed or rebuilt here.
+  function resizeChartsIn(panel){
+    if(typeof Chart === 'undefined' || !Chart.instances) return;
+    Object.values(Chart.instances).forEach(ch=>{
+      if(ch.canvas && panel.contains(ch.canvas)) ch.resize();
+    });
+  }
+
+  function activateTab(id, { updateHash = true, scroll = false } = {}){
+    if(!ids.includes(id)) id = DEFAULT_ID;
+    buttons.forEach(b=>{
+      const active = b.dataset.tab === id;
+      b.classList.toggle('active', active);
+      b.setAttribute('aria-selected', String(active));
+    });
+    panels.forEach(p=> p.classList.toggle('active', p.id === id));
+    const activePanel = document.getElementById(id);
+    requestAnimationFrame(()=> resizeChartsIn(activePanel));
+    if(updateHash && location.hash.slice(1) !== id){
+      history.pushState(null, '', '#' + id);
+    }
+    if(scroll){
+      tabBar.scrollIntoView({ block:'start', behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+    }
+  }
+
+  buttons.forEach(b=>{
+    b.addEventListener('click', ()=> activateTab(b.dataset.tab, { scroll:true }));
+  });
+
+  // back/forward navigation (or a manually edited hash) should resync the visible tab;
+  // our own pushState calls above don't fire hashchange, so this can't loop.
+  window.addEventListener('hashchange', ()=>{
+    activateTab(location.hash.slice(1), { updateHash:false });
+  });
+
+  const initialId = ids.includes(location.hash.slice(1)) ? location.hash.slice(1) : DEFAULT_ID;
+  activateTab(initialId, { updateHash:false });
 })();
 </script>
 </body>
