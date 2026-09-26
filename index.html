@@ -79,26 +79,77 @@
     font-size: 12.5px; letter-spacing: .09em; text-transform: uppercase;
     color: var(--text-muted); font-weight: 600; margin-bottom: 14px;
   }
-  .section-tabs{
+  /* sticky shell around the tab bar: gives it its own raised strip (so it can't be read as body
+     text) and hosts the edge fade + chevron shown when tabs overflow horizontally */
+  .section-tabs-shell{
     position: sticky; top: 0; z-index: 20;
-    display: flex; gap: 2px; overflow-x: auto; overscroll-behavior-x: contain;
-    background: var(--page-plane); border-bottom: 1px solid var(--border);
-    margin: 0 0 40px; padding: 0; scrollbar-width: thin;
+    margin: 0 0 40px;
+    background: var(--surface-1);
+    border: 1px solid var(--border); border-bottom: 1px solid var(--baseline);
+    border-radius: 10px 10px 0 0;
+    box-shadow: 0 1px 0 var(--border), 0 6px 14px -12px rgba(0,0,0,.35);
   }
-  .section-tabs::-webkit-scrollbar{ height: 4px; }
-  .section-tabs::-webkit-scrollbar-thumb{ background: var(--baseline); border-radius: 2px; }
+  .section-tabs{
+    display: flex; gap: 4px; overflow-x: auto; overscroll-behavior-x: contain;
+    padding: 6px 8px 0; scrollbar-width: none;
+  }
+  .section-tabs::-webkit-scrollbar{ display: none; }
   .section-tab{
-    flex: none; appearance: none; font: inherit; font-size: 13.5px; font-weight: 600;
-    color: var(--text-muted); background: transparent; border: none; white-space: nowrap;
-    padding: 15px 16px 13px; margin-bottom: -1px; cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: color .15s ease, border-color .15s ease;
+    flex: none; appearance: none; font: inherit; font-size: 14.5px; font-weight: 600;
+    color: var(--text-secondary); background: transparent; border: none; white-space: nowrap;
+    padding: 13px 18px 12px; margin-bottom: -1px; cursor: pointer;
+    border-bottom: 3px solid transparent; border-radius: 7px 7px 0 0;
+    transition: color .15s ease, border-color .15s ease, background-color .15s ease;
   }
-  .section-tab:hover{ color: var(--text-primary); }
+  .section-tab:hover{
+    color: var(--text-primary);
+    background: color-mix(in srgb, var(--text-primary) 5%, transparent);
+    border-bottom-color: var(--baseline);
+  }
   .section-tab:focus-visible{
-    outline: 2px solid var(--series-nato); outline-offset: -2px; border-radius: 3px;
+    outline: 2px solid var(--series-nato); outline-offset: -2px;
   }
-  .section-tab.active{ color: var(--text-primary); border-bottom-color: var(--series-nato); }
+  .section-tab.active{
+    color: var(--text-primary);
+    background: color-mix(in srgb, var(--series-nato) 11%, var(--surface-raised));
+    border-bottom-color: var(--series-nato);
+  }
+  /* overflow affordance: fade + chevron on whichever edge has more tabs (narrow screens only) */
+  .section-tabs-shell::before, .section-tabs-shell::after{
+    content: ""; position: absolute; top: 0; bottom: 0; width: 56px; pointer-events: none;
+    opacity: 0; transition: opacity .2s ease;
+    background-repeat: no-repeat;
+  }
+  .section-tabs-shell::before{
+    left: 0; border-top-left-radius: 10px;
+    background-position: left 6px center, 0 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M10 3 5 8l5 5' fill='none' stroke='%23898781' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"),
+      linear-gradient(to left, transparent, var(--surface-1) 50%);
+  }
+  .section-tabs-shell::after{
+    right: 0; border-top-right-radius: 10px;
+    background-position: right 6px center, 0 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m6 3 5 5-5 5' fill='none' stroke='%23898781' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"),
+      linear-gradient(to right, transparent, var(--surface-1) 50%);
+  }
+  .section-tabs-shell.more-left::before, .section-tabs-shell.more-right::after{ opacity: 1; }
+  .section-tabs-shell::before, .section-tabs-shell::after{ background-size: 14px 14px, 100% 100%; }
+
+  /* one-time first-load cue: a soft highlight travels across the inactive tabs, then stops */
+  @keyframes tab-intro-sweep{
+    0%, 100%{ background-color: transparent; border-bottom-color: transparent; }
+    40%{
+      background-color: color-mix(in srgb, var(--series-nato) 12%, transparent);
+      border-bottom-color: color-mix(in srgb, var(--series-nato) 45%, transparent);
+    }
+  }
+  .section-tabs.intro .section-tab:not(.active){
+    animation: tab-intro-sweep .9s ease-in-out both;
+    animation-delay: calc(450ms + var(--i, 0) * 130ms);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .section-tabs.intro .section-tab:not(.active){ animation: none; }
+  }
 
   .tab-panel{ display: none; }
   .tab-panel.active{ display: block; animation: tab-fade-in .18s ease; }
@@ -369,6 +420,7 @@
 
 <div class="wrap">
 
+  <div class="section-tabs-shell" id="section-tabs-shell">
   <nav class="section-tabs" id="section-tabs" role="tablist" aria-label="Report sections">
     <button class="section-tab" role="tab" id="tab-btn-fig3" aria-controls="fig3" aria-selected="false" data-tab="fig3">By alliance type</button>
     <button class="section-tab" role="tab" id="tab-btn-table1" aria-controls="table1" aria-selected="false" data-tab="table1">Yearly ranking</button>
@@ -377,6 +429,7 @@
     <button class="section-tab" role="tab" id="tab-btn-fig5" aria-controls="fig5" aria-selected="false" data-tab="fig5">NATO accession</button>
     <button class="section-tab" role="tab" id="tab-btn-signals" aria-controls="signals" aria-selected="false" data-tab="signals">Great-power signals</button>
   </nav>
+  </div>
 
   <section id="fig3" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-fig3" tabindex="0">
     <h2 class="section-title">Alignment scores over time, by alliance type</h2>
@@ -1787,6 +1840,37 @@ const CountrySelection = (function(){
 
   const initialId = ids.includes(location.hash.slice(1)) ? location.hash.slice(1) : DEFAULT_ID;
   activateTab(initialId, { updateHash:false });
+
+  // overflow affordance: show a fade + chevron on whichever edge still has tabs off-screen
+  const shell = document.getElementById('section-tabs-shell');
+  function updateOverflowCue(){
+    const max = tabBar.scrollWidth - tabBar.clientWidth;
+    shell.classList.toggle('more-left', tabBar.scrollLeft > 2);
+    shell.classList.toggle('more-right', max - tabBar.scrollLeft > 2);
+  }
+  tabBar.addEventListener('scroll', updateOverflowCue, { passive:true });
+  window.addEventListener('resize', updateOverflowCue);
+  updateOverflowCue();
+  // keep the active tab in view when the bar is scrollable (e.g. deep-linked on a phone)
+  const activeBtn = buttons.find(b => b.classList.contains('active'));
+  if(activeBtn && tabBar.scrollWidth > tabBar.clientWidth){
+    tabBar.scrollLeft = activeBtn.offsetLeft - (tabBar.clientWidth - activeBtn.offsetWidth) / 2;
+    updateOverflowCue();
+  }
+
+  // one-time first-load cue: a staggered highlight sweeps across the inactive tabs once.
+  // The class is removed when the last animation ends, or immediately on any interaction,
+  // so it never replays and never competes with a real tab switch.
+  if(!prefersReducedMotion){
+    buttons.forEach((b, i)=> b.style.setProperty('--i', i));
+    const endIntro = ()=> tabBar.classList.remove('intro');
+    tabBar.classList.add('intro');
+    const last = [...buttons].reverse().find(b => !b.classList.contains('active'));
+    if(last) last.addEventListener('animationend', endIntro, { once:true });
+    tabBar.addEventListener('pointerdown', endIntro, { once:true });
+    tabBar.addEventListener('keydown', endIntro, { once:true });
+    setTimeout(endIntro, 3000); // safety net if animationend never fires (e.g. background tab)
+  }
 })();
 </script>
 </body>
